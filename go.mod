@@ -12,9 +12,6 @@ require (
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	github.com/uniplaces/carbon v0.2.2
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
-)
-
-require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
