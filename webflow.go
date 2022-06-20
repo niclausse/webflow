@@ -17,17 +17,20 @@ func Init(log logx.Logger) {
 
 func UseController(ctl layer.IController) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
-		r := response.NewResponder("dev", logger)
+		ctl.SetContext(ctx)
+		ctl.SetBindingObject()
+
+		r := response.NewResponder(logger.GetLevel().Str(), logger)
 
 		bindingType := ctl.GetBindingType()
-		req := ctl.GetRequest()
+		req := ctl.GetBindingObject()
 		if req == nil {
-			r.Fail(ctx, errorx.AppendDetails(errors.WithStack(errorx.ParamInvalid), "controller has not bind request dto"))
+			r.Fail(ctx, errors.WithStack(errorx.ParamInvalid.WithDetails("controller dto missed")))
 			return
 		}
 
 		if err := ctx.ShouldBindWith(req, bindingType); err != nil {
-			r.Fail(ctx, errorx.AppendDetails(errors.WithStack(errorx.ParamInvalid), err.Error()))
+			r.Fail(ctx, errors.WithStack(errorx.ParamInvalid.WithDetails(err.Error())))
 			return
 		}
 

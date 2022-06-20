@@ -2,41 +2,25 @@ package errorx
 
 import (
 	"fmt"
-
-	"github.com/pkg/errors"
 )
 
-type errorX struct {
-	bizNo   int
-	bizMsg  string
-	details []string
+type ErrorX struct {
+	BizNo   int
+	BizMsg  string
+	Details []string
 }
 
-func (e *errorX) Error() string {
-	return fmt.Sprintf("err_no: %d, err_msg: %s", e.bizNo, e.bizMsg)
+func (e *ErrorX) Error() string {
+	return fmt.Sprintf("err_no: %d, err_msg: %s, details: %v", e.BizNo, e.BizMsg, e.Details)
 }
 
-func New(errNo int, errMsg string, details ...string) error {
-	return &errorX{bizNo: errNo, bizMsg: errMsg, details: details}
+func New(errNo int, errMsg string, details ...string) *ErrorX {
+	return &ErrorX{BizNo: errNo, BizMsg: errMsg, Details: details}
 }
 
-func AppendDetails(err error, details ...string) error {
-	ex, ok := errors.Cause(err).(*errorX)
-	if !ok {
-		ex = &errorX{bizNo: NoSystemError, bizMsg: ErrMSG[NoSystemError]}
-	}
-
-	ex.details = append(ex.details, details...)
-	return ex
-}
-
-func Biz(err error) (bizNo int, bizMsg string, details []string) {
-	ex, ok := errors.Cause(err).(*errorX)
-	if !ok {
-		ex = &errorX{bizNo: NoSystemError, bizMsg: ErrMSG[NoSystemError], details: []string{fmt.Sprintf("[%s] is not an errorX", err.Error())}}
-	}
-
-	return ex.bizNo, ex.bizMsg, ex.details
+func (e *ErrorX) WithDetails(details ...string) *ErrorX {
+	e.Details = append(e.Details, details...)
+	return e
 }
 
 const (

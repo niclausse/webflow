@@ -1,4 +1,4 @@
 package dto
 
-type FailRequest struct {
+type PongReq struct {
 }

@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/pkg/errors"
+
 	"github.com/gin-gonic/gin"
 
 	"github.com/penglin1995/webflow/errorx"
@@ -32,17 +34,20 @@ type responder struct {
 }
 
 func (r *responder) Fail(ctx *gin.Context, err error) {
-	no, msg, details := errorx.Biz(err)
-
-	resp := gin.H{
-		"err_no":  no,
-		"err_msg": msg,
-	}
-
 	stack := strings.Split(fmt.Sprintf("%+v", err), "\n")
 
+	ex, ok := errors.Cause(err).(*errorx.ErrorX)
+	if !ok {
+		ex = errorx.SystemError.WithDetails("backend should use errorX!!!")
+	}
+
+	resp := gin.H{
+		"err_no":  ex.BizNo,
+		"err_msg": ex.BizMsg,
+	}
+
 	if r.runMode == "dev" {
-		resp["details"] = details
+		resp["details"] = ex.Details
 		resp["stack"] = stack
 	}
 
