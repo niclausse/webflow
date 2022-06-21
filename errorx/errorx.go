@@ -28,3 +28,18 @@ func (e *ErrorX) WithDetails(details ...string) *ErrorX {
 	x.Details = append(x.Details, details...)
 	return x
 }
+
+func (e *ErrorX) WithErrorDetail(err error) *ErrorX {
+	if err == nil {
+		return e
+	}
+
+	x := &ErrorX{
+		BizNo:   e.BizNo,
+		BizMsg:  e.BizMsg,
+		Details: e.Details,
+	}
+
+	x.Details = append(x.Details, err.Error())
+	return x
+}
