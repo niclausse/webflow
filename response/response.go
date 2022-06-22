@@ -13,23 +13,24 @@ import (
 	"github.com/penglin1995/webflow/logx"
 )
 
-type Render struct {
-	ErrNo  int         `json:"err_no"`
-	ErrMSG string      `json:"err_msg"`
-	Data   interface{} `json:"data"`
-}
+type Mode string
+
+const (
+	ModeDev        Mode = "dev"
+	ModeProduction Mode = "production"
+)
 
 type Responder interface {
 	Fail(ctx *gin.Context, err error)
 	Succeed(ctx *gin.Context, data interface{})
 }
 
-func NewResponder(mode string, logger logx.Logger) Responder {
+func NewResponder(mode Mode, logger logx.Logger) Responder {
 	return &responder{runMode: mode, logger: logger}
 }
 
 type responder struct {
-	runMode string
+	runMode Mode
 	logger  logx.Logger
 }
 

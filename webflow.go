@@ -20,7 +20,7 @@ func UseController(ctl layer.IController) func(ctx *gin.Context) {
 		ctl.SetContext(ctx)
 		ctl.SetBindingObject()
 
-		r := response.NewResponder(logger.GetLevel().Str(), logger)
+		r := response.NewResponder(response.ModeDev, logger)
 
 		bindingType := ctl.GetBindingType()
 		req := ctl.GetBindingObject()
