@@ -72,6 +72,8 @@ func WithStack(err error, biz *ErrorX) *ErrorX {
 		stack:   biz.stack,
 	}
 
+	x.Details = append(x.Details, err.Error())
+
 	if x.stack == nil {
 		x.stack = callers()
 	}
