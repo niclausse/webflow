@@ -2,44 +2,39 @@ package webflow
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/penglin1995/webflow/errorx"
-	"github.com/penglin1995/webflow/layer"
-	"github.com/penglin1995/webflow/logx"
-	"github.com/penglin1995/webflow/response"
-	"github.com/pkg/errors"
+	"github.com/niclausse/webflow/layer"
+	"github.com/niclausse/webkit/errorx"
+	"github.com/niclausse/webkit/response"
+	"gorm.io/gorm"
 )
-
-var logger logx.Logger
-
-func Init(log logx.Logger) {
-	logger = log
-}
 
 func UseController(ctl layer.IController) func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
-		ctl.SetContext(ctx)
-		ctl.SetBindingObject()
+		ctl.SetGinContext(ctx)
 
-		r := response.NewResponder(response.ModeDev, logger)
+		if req := ctl.GetBindingObject(); req != nil {
+			if bindingType := ctl.GetBindingType(); bindingType != nil {
+				if err := ctx.ShouldBindWith(req, bindingType); err != nil {
+					response.Fail(ctx, errorx.ParamInvalid.WithDetails(err.Error()).WithStack())
+					return
+				}
+			}
 
-		bindingType := ctl.GetBindingType()
-		req := ctl.GetBindingObject()
-		if req == nil {
-			r.Fail(ctx, errors.WithStack(errorx.ParamInvalid.WithDetails("controller dto missed")))
-			return
-		}
-
-		if err := ctx.ShouldBindWith(req, bindingType); err != nil {
-			r.Fail(ctx, errors.WithStack(errorx.ParamInvalid.WithDetails(err.Error())))
-			return
+			if err := ctx.ShouldBind(req); err != nil {
+				response.Fail(ctx, errorx.ParamInvalid.WithDetails(err.Error()).WithStack())
+			}
 		}
 
 		resp, err := ctl.Action()
 		if err != nil {
-			r.Fail(ctx, err)
+			response.Fail(ctx, err)
 			return
 		}
 
-		r.Succeed(ctx, resp)
+		response.Succeed(ctx, resp)
 	}
+}
+
+func SetDefaultDB(db *gorm.DB) {
+	layer.SetDefaultDB(db)
 }

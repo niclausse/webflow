@@ -1,19 +1,23 @@
 package controllers
 
 import (
-	"github.com/penglin1995/webflow/examples/dto"
-	"github.com/penglin1995/webflow/examples/logic"
-	"github.com/penglin1995/webflow/layer"
+	"github.com/niclausse/webflow/examples/service"
+	"github.com/niclausse/webflow/layer"
 )
 
-type AddUserCTL struct {
+type UserInfoReq struct {
+	Uid int64 `form:"uid" binding:"required"`
+}
+
+type UserInfoCTL struct {
 	layer.Controller
+	dto *UserInfoReq
 }
 
-func (c *AddUserCTL) SetBindingObject() {
-	c.DTO = new(dto.AddUserReq)
+func (entity *UserInfoCTL) GetBindingObject() interface{} {
+	return &entity.dto
 }
 
-func (c *AddUserCTL) Action() (interface{}, error) {
-	return nil, logic.NewUserLogic().Add(c.GetContext(), c.GetBindingObject().(*dto.AddUserReq))
+func (entity *UserInfoCTL) Action() (interface{}, error) {
+	return entity.Create(new(service.UserService)).(*service.UserService).UserInfo(entity.dto.Uid)
 }

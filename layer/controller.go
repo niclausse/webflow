@@ -6,40 +6,34 @@ import (
 )
 
 type IController interface {
-	SetContext(ctx *gin.Context)
-	GetContext() *gin.Context
+	IFlow
+	SetGinContext(ctx *gin.Context)
+	GetGinContext() *gin.Context
 	GetBindingType() binding.Binding
 	GetBindingObject() interface{}
-	SetBindingObject()
 	Action() (interface{}, error)
 }
 
 type Controller struct {
-	gx  *gin.Context
-	DTO interface{}
+	Flow
+	gx *gin.Context
 }
 
-type FlowParam struct {
-}
-
-func (d *Controller) SetContext(ctx *gin.Context) {
+func (d *Controller) SetGinContext(ctx *gin.Context) {
 	d.gx = ctx
+	d.SetContext(ctx.Request.Context())
 }
 
-func (d *Controller) GetContext() *gin.Context {
+func (d *Controller) GetGinContext() *gin.Context {
 	return d.gx
 }
 
 func (d *Controller) GetBindingType() binding.Binding {
-	return binding.JSON
-}
-
-func (d *Controller) SetBindingObject() {
-	d.DTO = &FlowParam{}
+	return nil
 }
 
 func (d *Controller) GetBindingObject() interface{} {
-	return d.DTO
+	return nil
 }
 
 func (d *Controller) Action() (interface{}, error) {
